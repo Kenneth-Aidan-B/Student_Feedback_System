@@ -1,4 +1,9 @@
+// © 2026 Kenneth
+// Academic & Non-Commercial Use Only
+// Commercial use requires explicit permission
+
 import { Feedback, Subject, DepartmentCode } from "../types";
+
 
 // Initial Dummy Data for Demo Purposes - Expanded for better coverage
 const INITIAL_SUBJECTS: Subject[] = [
@@ -33,22 +38,22 @@ const INITIAL_SUBJECTS: Subject[] = [
   { id: 'ece_2_1', name: 'Signals and Systems', department_code: 'ECE', year: 2, semester: 3, is_lab: false, staff_name: 'Dr. Fourier' },
   { id: 'ece_2_2', name: 'Electronic Circuits I', department_code: 'ECE', year: 2, semester: 3, is_lab: false, staff_name: 'Prof. Shockley' },
   { id: 'ece_3_1', name: 'Digital Signal Processing', department_code: 'ECE', year: 3, semester: 5, is_lab: false, staff_name: 'Dr. Shannon' },
-  
+
   // --- MECH SAMPLES ---
   { id: 'mech_2_1', name: 'Thermodynamics', department_code: 'MECH', year: 2, semester: 3, is_lab: false, staff_name: 'Prof. Diesel' },
   { id: 'mech_3_1', name: 'Fluid Mechanics', department_code: 'MECH', year: 3, semester: 5, is_lab: false, staff_name: 'Prof. Pascal' },
 ];
 
 const INITIAL_FEEDBACKS: Feedback[] = [
-  { 
-    id: 'fb_1', subject_id: 'cse_2_1', staff_name: 'Dr. Alan Turing', register_number: '21052321001', 
-    faculty_rating: 5, difficulty_rating: 4, sentiment: 'Positive', text_feedback: 'Great explanations of trees.', 
-    chapters_completed: 3, created_at: new Date().toISOString(), department_code: 'CSE', year: 2, semester: 3 
+  {
+    id: 'fb_1', subject_id: 'cse_2_1', staff_name: 'Dr. Alan Turing', register_number: '21052321001',
+    faculty_rating: 5, difficulty_rating: 4, sentiment: 'Positive', text_feedback: 'Great explanations of trees.',
+    chapters_completed: 3, created_at: new Date().toISOString(), department_code: 'CSE', year: 2, semester: 3
   },
-  { 
-    id: 'fb_2', subject_id: 'cse_2_1', staff_name: 'Dr. Alan Turing', register_number: '21052321002', 
-    faculty_rating: 4, difficulty_rating: 5, sentiment: 'Neutral', text_feedback: 'A bit fast paced.', 
-    chapters_completed: 3, created_at: new Date().toISOString(), department_code: 'CSE', year: 2, semester: 3 
+  {
+    id: 'fb_2', subject_id: 'cse_2_1', staff_name: 'Dr. Alan Turing', register_number: '21052321002',
+    faculty_rating: 4, difficulty_rating: 5, sentiment: 'Neutral', text_feedback: 'A bit fast paced.',
+    chapters_completed: 3, created_at: new Date().toISOString(), department_code: 'CSE', year: 2, semester: 3
   },
   {
     id: 'fb_3', subject_id: 'sh_2', staff_name: 'Dr. Ramanujan', register_number: '21052421001',
@@ -74,10 +79,10 @@ class MockDB {
   async getSubjects(dept: DepartmentCode, year: number, semester: number): Promise<Subject[]> {
     await new Promise(r => setTimeout(r, 400)); // Simulate latency
     const all = this.get<Subject[]>('subjects', INITIAL_SUBJECTS);
-    
+
     // Strict match filter to ensure semesters don't leak
     const strictMatch = all.filter(s => s.department_code === dept && s.year === year && s.semester === semester);
-    
+
     // For demo robustness: If strict match fails, try falling back to just Year match IF strict sem check returns empty.
     // However, user specifically complained about mismatches, so let's stick to strict matching for correctness,
     // assuming INITIAL_SUBJECTS covers the demo paths (1,3,5,7) correctly now.
@@ -85,23 +90,23 @@ class MockDB {
   }
 
   async getAllSubjects(): Promise<Subject[]> {
-     const all = this.get<Subject[]>('subjects', INITIAL_SUBJECTS);
-     return all;
+    const all = this.get<Subject[]>('subjects', INITIAL_SUBJECTS);
+    return all;
   }
 
   // HOD View: Get subjects by staff or department logic
   async getSubjectsByDepartment(dept: DepartmentCode): Promise<Subject[]> {
-      const all = this.get<Subject[]>('subjects', INITIAL_SUBJECTS);
-      // For SH, it might be complex, but usually subjects are marked with dept code
-      return all.filter(s => s.department_code === dept);
+    const all = this.get<Subject[]>('subjects', INITIAL_SUBJECTS);
+    // For SH, it might be complex, but usually subjects are marked with dept code
+    return all.filter(s => s.department_code === dept);
   }
 
   // Special for S&H HOD to get all 1st year subjects across depts (if schema supports)
   // Or simply fetch all subjects where Dept is SH
   async getSHSubjects(): Promise<Subject[]> {
-      const all = this.get<Subject[]>('subjects', INITIAL_SUBJECTS);
-      // Logic: S&H HOD sees First Year staff (often belong to SH dept or teaching 1st year)
-      return all.filter(s => s.department_code === 'SH' || s.year === 1);
+    const all = this.get<Subject[]>('subjects', INITIAL_SUBJECTS);
+    // Logic: S&H HOD sees First Year staff (often belong to SH dept or teaching 1st year)
+    return all.filter(s => s.department_code === 'SH' || s.year === 1);
   }
 
   async checkFeedbackExists(regNo: string, semester: number, dept: DepartmentCode): Promise<boolean> {
@@ -129,7 +134,7 @@ class MockDB {
   async getFeedbackForHOD(dept: DepartmentCode): Promise<Feedback[]> {
     await new Promise(r => setTimeout(r, 600));
     const all = this.get<Feedback[]>('feedbacks', INITIAL_FEEDBACKS);
-    
+
     if (dept === 'SH') {
       // SH HOD sees only 1st year data across all
       return all.filter(f => f.year === 1);

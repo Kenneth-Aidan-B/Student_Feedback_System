@@ -1,4 +1,9 @@
+// © 2026 Kenneth
+// Academic & Non-Commercial Use Only
+// Commercial use requires explicit permission
+
 import React, { useEffect, useState } from 'react';
+
 import { AdminContext, Feedback, Subject, AIInsights } from '../types';
 import { dbService } from '../services/dbService';
 import { generateSubjectInsights, generateStaffInsights } from '../services/geminiService';
@@ -15,14 +20,14 @@ const AdminDashboard: React.FC<Props> = ({ context, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  
+
   // AI State
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const [selectedStaffName, setSelectedStaffName] = useState<string | null>(null);
-  
+
   const [subjectInsights, setSubjectInsights] = useState<AIInsights | null>(null);
   const [staffInsights, setStaffInsights] = useState<AIInsights | null>(null);
-  
+
   const [aiLoading, setAiLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'analytics' | 'manage'>('analytics');
 
@@ -50,15 +55,15 @@ const AdminDashboard: React.FC<Props> = ({ context, onLogout }) => {
     const subFbs = feedbacks.filter(f => f.subject_id === subId);
     const count = subFbs.length;
     if (count === 0) return null;
-    
+
     const avgFac = subFbs.reduce((acc, c) => acc + c.faculty_rating, 0) / count;
     const avgDiff = subFbs.reduce((acc, c) => acc + c.difficulty_rating, 0) / count;
-    
+
     return { name: subjects.find(s => s.id === subId)?.name, avgFac, avgDiff, count };
   };
 
   const chartData = subjects.map(s => calculateSubjectStats(s.id)).filter(Boolean);
-  
+
   const sentimentCounts = feedbacks.reduce((acc, curr) => {
     acc[curr.sentiment] = (acc[curr.sentiment] || 0) + 1;
     return acc;
@@ -82,10 +87,10 @@ const AdminDashboard: React.FC<Props> = ({ context, onLogout }) => {
     setSelectedSubjectId(subId);
     setSelectedStaffName(null); // Clear other selection
     setSubjectInsights(null);
-    
+
     const sub = subjects.find(s => s.id === subId);
     const subFbs = feedbacks.filter(f => f.subject_id === subId).map(f => f.text_feedback);
-    
+
     if (sub && subFbs.length > 0) {
       const insights = await generateSubjectInsights(sub.name, subFbs);
       setSubjectInsights(insights);
@@ -140,84 +145,84 @@ const AdminDashboard: React.FC<Props> = ({ context, onLogout }) => {
           <p className="text-gray-500 mt-1">{context.department} | Year {context.year} | Sem {context.semester}</p>
         </div>
         <div className="flex gap-3">
-           <Button variant="secondary" onClick={() => setViewMode(viewMode === 'analytics' ? 'manage' : 'analytics')}>
-             {viewMode === 'analytics' ? 'Manage Subjects' : 'View Analytics'}
-           </Button>
-           <Button onClick={handleExport}>Export Data</Button>
-           <Button variant="danger" onClick={onLogout}>Logout</Button>
+          <Button variant="secondary" onClick={() => setViewMode(viewMode === 'analytics' ? 'manage' : 'analytics')}>
+            {viewMode === 'analytics' ? 'Manage Subjects' : 'View Analytics'}
+          </Button>
+          <Button onClick={handleExport}>Export Data</Button>
+          <Button variant="danger" onClick={onLogout}>Logout</Button>
         </div>
       </header>
 
       {viewMode === 'manage' ? (
         <Card className="p-6">
-           <h2 className="text-xl font-bold mb-4">Manage Subjects</h2>
-           <div className="flex flex-col md:flex-row gap-4 items-end mb-6 bg-gray-50 p-4 rounded-lg">
-              <div className="flex-1 w-full"><Input label="Subject Name" value={newSubName} onChange={(e: any) => setNewSubName(e.target.value)} /></div>
-              <div className="flex-1 w-full"><Input label="Staff Name" value={newSubStaff} onChange={(e: any) => setNewSubStaff(e.target.value)} /></div>
-              <div className="mb-4 flex items-center h-full pb-2">
-                 <input type="checkbox" checked={newSubIsLab} onChange={e => setNewSubIsLab(e.target.checked)} className="mr-2" />
-                 <label>Is Lab?</label>
-              </div>
-              <div className="mb-4"><Button onClick={handleAddSubject}>Add Subject</Button></div>
-           </div>
-           <div className="overflow-x-auto border rounded-lg">
-             <table className="min-w-full divide-y divide-gray-200">
-               <thead className="bg-gray-100">
-                 <tr>
-                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Subject</th>
-                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Staff</th>
-                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Type</th>
-                   <th className="px-6 py-3 text-right">Actions</th>
-                 </tr>
-               </thead>
-               <tbody className="bg-white divide-y divide-gray-200">
-                 {subjects.length > 0 ? (
-                   subjects.map(s => (
-                     <tr key={s.id}>
-                       <td className="px-6 py-4 text-gray-900">{s.name}</td>
-                       <td className="px-6 py-4 text-gray-900">{s.staff_name}</td>
-                       <td className="px-6 py-4 text-gray-900">{s.is_lab ? 'Lab' : 'Theory'}</td>
-                       <td className="px-6 py-4 text-right">
-                         <button onClick={() => handleDeleteSubject(s.id)} className="text-red-600 hover:text-red-900 font-medium">Delete</button>
-                       </td>
-                     </tr>
-                   ))
-                 ) : (
-                   <tr>
-                     <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                       No subjects found for this semester. Add one above.
-                     </td>
-                   </tr>
-                 )}
-               </tbody>
-             </table>
-           </div>
+          <h2 className="text-xl font-bold mb-4">Manage Subjects</h2>
+          <div className="flex flex-col md:flex-row gap-4 items-end mb-6 bg-gray-50 p-4 rounded-lg">
+            <div className="flex-1 w-full"><Input label="Subject Name" value={newSubName} onChange={(e: any) => setNewSubName(e.target.value)} /></div>
+            <div className="flex-1 w-full"><Input label="Staff Name" value={newSubStaff} onChange={(e: any) => setNewSubStaff(e.target.value)} /></div>
+            <div className="mb-4 flex items-center h-full pb-2">
+              <input type="checkbox" checked={newSubIsLab} onChange={e => setNewSubIsLab(e.target.checked)} className="mr-2" />
+              <label>Is Lab?</label>
+            </div>
+            <div className="mb-4"><Button onClick={handleAddSubject}>Add Subject</Button></div>
+          </div>
+          <div className="overflow-x-auto border rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Subject</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Staff</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Type</th>
+                  <th className="px-6 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {subjects.length > 0 ? (
+                  subjects.map(s => (
+                    <tr key={s.id}>
+                      <td className="px-6 py-4 text-gray-900">{s.name}</td>
+                      <td className="px-6 py-4 text-gray-900">{s.staff_name}</td>
+                      <td className="px-6 py-4 text-gray-900">{s.is_lab ? 'Lab' : 'Theory'}</td>
+                      <td className="px-6 py-4 text-right">
+                        <button onClick={() => handleDeleteSubject(s.id)} className="text-red-600 hover:text-red-900 font-medium">Delete</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                      No subjects found for this semester. Add one above.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </Card>
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-             <Card className="p-4 bg-indigo-50 border-indigo-100">
-                <div className="text-gray-500 text-sm">Total Feedback</div>
-                <div className="text-3xl font-bold text-indigo-900">{feedbacks.length}</div>
-             </Card>
-             <Card className="p-4">
-                <div className="text-gray-500 text-sm">Avg Faculty Rating</div>
-                <div className="text-3xl font-bold text-gray-900">
-                  {(feedbacks.reduce((a, b) => a + b.faculty_rating, 0) / (feedbacks.length || 1)).toFixed(1)}
-                </div>
-             </Card>
-             <Card className="p-4">
-                <div className="text-gray-500 text-sm">Avg Difficulty</div>
-                <div className="text-3xl font-bold text-gray-900">
+            <Card className="p-4 bg-indigo-50 border-indigo-100">
+              <div className="text-gray-500 text-sm">Total Feedback</div>
+              <div className="text-3xl font-bold text-indigo-900">{feedbacks.length}</div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-gray-500 text-sm">Avg Faculty Rating</div>
+              <div className="text-3xl font-bold text-gray-900">
+                {(feedbacks.reduce((a, b) => a + b.faculty_rating, 0) / (feedbacks.length || 1)).toFixed(1)}
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-gray-500 text-sm">Avg Difficulty</div>
+              <div className="text-3xl font-bold text-gray-900">
                 {(feedbacks.reduce((a, b) => a + b.difficulty_rating, 0) / (feedbacks.length || 1)).toFixed(1)}
-                </div>
-             </Card>
-             <Card className="p-4">
-                <div className="text-gray-500 text-sm">Positive Sentiment</div>
-                <div className="text-3xl font-bold text-green-600">
-                  {((sentimentCounts['Positive'] || 0) / (feedbacks.length || 1) * 100).toFixed(0)}%
-                </div>
-             </Card>
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-gray-500 text-sm">Positive Sentiment</div>
+              <div className="text-3xl font-bold text-green-600">
+                {((sentimentCounts['Positive'] || 0) / (feedbacks.length || 1) * 100).toFixed(0)}%
+              </div>
+            </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -259,78 +264,78 @@ const AdminDashboard: React.FC<Props> = ({ context, onLogout }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Subject Insights */}
             <Card className="p-6 flex flex-col">
-               <h3 className="text-lg font-bold mb-6">Subject AI Insights</h3>
-               <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                 {subjects.map(s => (
-                   <button 
-                     key={s.id}
-                     onClick={() => handleSubjectAnalysis(s.id)}
-                     className={`px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-medium border transition-colors ${selectedSubjectId === s.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-                   >
-                     {s.name}
-                   </button>
-                 ))}
-               </div>
+              <h3 className="text-lg font-bold mb-6">Subject AI Insights</h3>
+              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                {subjects.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => handleSubjectAnalysis(s.id)}
+                    className={`px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-medium border transition-colors ${selectedSubjectId === s.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                  >
+                    {s.name}
+                  </button>
+                ))}
+              </div>
 
-               {aiLoading && selectedSubjectId ? <Loader /> : subjectInsights ? (
-                 <div className="space-y-4 animate-fade-in flex-1">
-                    <div className="bg-green-50 p-3 rounded border border-green-100">
-                      <h4 className="font-bold text-green-800 text-sm mb-1">Strengths</h4>
-                      <ul className="list-disc ml-4 text-xs text-green-700 space-y-1">
-                        {subjectInsights.strengths.map((s, i) => <li key={i}>{s}</li>)}
-                      </ul>
-                    </div>
-                    <div className="bg-yellow-50 p-3 rounded border border-yellow-100">
-                      <h4 className="font-bold text-yellow-800 text-sm mb-1">Improvements</h4>
-                      <ul className="list-disc ml-4 text-xs text-yellow-700 space-y-1">
-                        {subjectInsights.improvements.map((s, i) => <li key={i}>{s}</li>)}
-                      </ul>
-                    </div>
-                 </div>
-               ) : (
-                 <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Select a subject</div>
-               )}
+              {aiLoading && selectedSubjectId ? <Loader /> : subjectInsights ? (
+                <div className="space-y-4 animate-fade-in flex-1">
+                  <div className="bg-green-50 p-3 rounded border border-green-100">
+                    <h4 className="font-bold text-green-800 text-sm mb-1">Strengths</h4>
+                    <ul className="list-disc ml-4 text-xs text-green-700 space-y-1">
+                      {subjectInsights.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                    </ul>
+                  </div>
+                  <div className="bg-yellow-50 p-3 rounded border border-yellow-100">
+                    <h4 className="font-bold text-yellow-800 text-sm mb-1">Improvements</h4>
+                    <ul className="list-disc ml-4 text-xs text-yellow-700 space-y-1">
+                      {subjectInsights.improvements.map((s, i) => <li key={i}>{s}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Select a subject</div>
+              )}
             </Card>
 
             {/* Staff Insights (New) */}
             <Card className="p-6 flex flex-col">
-               <h3 className="text-lg font-bold mb-6">Staff Performance AI</h3>
-               <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-                 {uniqueStaff.map(name => (
-                   <button 
-                     key={name}
-                     onClick={() => handleStaffAnalysis(name)}
-                     className={`px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-medium border transition-colors ${selectedStaffName === name ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-                   >
-                     {name}
-                   </button>
-                 ))}
-               </div>
+              <h3 className="text-lg font-bold mb-6">Staff Performance AI</h3>
+              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                {uniqueStaff.map(name => (
+                  <button
+                    key={name}
+                    onClick={() => handleStaffAnalysis(name)}
+                    className={`px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-medium border transition-colors ${selectedStaffName === name ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
 
-               {aiLoading && selectedStaffName ? <Loader /> : staffInsights ? (
-                 <div className="space-y-4 animate-fade-in flex-1">
-                    <div className="bg-blue-50 p-3 rounded border border-blue-100">
-                      <h4 className="font-bold text-blue-800 text-sm mb-1">Strengths</h4>
-                      <ul className="list-disc ml-4 text-xs text-blue-700 space-y-1">
-                        {staffInsights.strengths.map((s, i) => <li key={i}>{s}</li>)}
-                      </ul>
-                    </div>
-                    <div className="bg-red-50 p-3 rounded border border-red-100">
-                      <h4 className="font-bold text-red-800 text-sm mb-1">Areas of Concern</h4>
-                      <ul className="list-disc ml-4 text-xs text-red-700 space-y-1">
-                        {staffInsights.areas_of_concern?.map((s, i) => <li key={i}>{s}</li>)}
-                      </ul>
-                    </div>
-                    <div className="bg-indigo-50 p-3 rounded border border-indigo-100">
-                      <h4 className="font-bold text-indigo-800 text-sm mb-1">Suggestions</h4>
-                      <ul className="list-disc ml-4 text-xs text-indigo-700 space-y-1">
-                        {staffInsights.actionable_suggestions?.map((s, i) => <li key={i}>{s}</li>)}
-                      </ul>
-                    </div>
-                 </div>
-               ) : (
-                 <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Select a staff member</div>
-               )}
+              {aiLoading && selectedStaffName ? <Loader /> : staffInsights ? (
+                <div className="space-y-4 animate-fade-in flex-1">
+                  <div className="bg-blue-50 p-3 rounded border border-blue-100">
+                    <h4 className="font-bold text-blue-800 text-sm mb-1">Strengths</h4>
+                    <ul className="list-disc ml-4 text-xs text-blue-700 space-y-1">
+                      {staffInsights.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                    </ul>
+                  </div>
+                  <div className="bg-red-50 p-3 rounded border border-red-100">
+                    <h4 className="font-bold text-red-800 text-sm mb-1">Areas of Concern</h4>
+                    <ul className="list-disc ml-4 text-xs text-red-700 space-y-1">
+                      {staffInsights.areas_of_concern?.map((s, i) => <li key={i}>{s}</li>)}
+                    </ul>
+                  </div>
+                  <div className="bg-indigo-50 p-3 rounded border border-indigo-100">
+                    <h4 className="font-bold text-indigo-800 text-sm mb-1">Suggestions</h4>
+                    <ul className="list-disc ml-4 text-xs text-indigo-700 space-y-1">
+                      {staffInsights.actionable_suggestions?.map((s, i) => <li key={i}>{s}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Select a staff member</div>
+              )}
             </Card>
           </div>
         </div>

@@ -1,4 +1,9 @@
+// © 2026 Kenneth
+// Academic & Non-Commercial Use Only
+// Commercial use requires explicit permission
+
 export type DepartmentCode = 'CSE' | 'ECE' | 'MECH' | 'CIVIL' | 'EEE' | 'IT' | 'SH';
+
 
 export interface Subject {
   id: string;

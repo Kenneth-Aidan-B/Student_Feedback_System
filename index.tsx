@@ -1,4 +1,9 @@
+// © 2026 Kenneth
+// Academic & Non-Commercial Use Only
+// Commercial use requires explicit permission
+
 import React from 'react';
+
 import ReactDOM from 'react-dom/client';
 import App from './App';
 

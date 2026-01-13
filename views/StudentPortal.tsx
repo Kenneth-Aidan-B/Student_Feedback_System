@@ -1,4 +1,9 @@
+// © 2026 Kenneth
+// Academic & Non-Commercial Use Only
+// Commercial use requires explicit permission
+
 import React, { useState, useEffect } from 'react';
+
 import { dbService } from '../services/dbService';
 import { analyzeSentiment } from '../services/geminiService';
 import { Subject, DepartmentCode, Feedback } from '../types';
@@ -11,7 +16,7 @@ interface Props {
 const StudentPortal: React.FC<Props> = ({ onBack }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  
+
   // Selection State
   const [dept, setDept] = useState<DepartmentCode>('CSE');
   const [year, setYear] = useState(1);
@@ -63,7 +68,7 @@ const StudentPortal: React.FC<Props> = ({ onBack }) => {
         setLoading(false);
         return;
       }
-      
+
       const subs = await dbService.getSubjects(dept, year, semester);
       if (subs.length === 0) {
         alert("No subjects found for this cohort (Department/Year/Semester).");
@@ -143,30 +148,30 @@ const StudentPortal: React.FC<Props> = ({ onBack }) => {
       <div className="max-w-md mx-auto mt-10">
         <Card className="p-8">
           <h2 className="text-2xl font-bold text-indigo-900 mb-6">Student Portal</h2>
-          
-          <Select 
+
+          <Select
             label="Department"
             value={dept}
             onChange={(e: any) => setDept(e.target.value)}
-            options={['CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT', 'SH'].map(d => ({label: d, value: d}))}
+            options={['CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT', 'SH'].map(d => ({ label: d, value: d }))}
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <Select 
+            <Select
               label="Year" value={year} onChange={(e: any) => setYear(Number(e.target.value))}
-              options={[1,2,3,4].map(y => ({label: `Year ${y}`, value: y}))}
+              options={[1, 2, 3, 4].map(y => ({ label: `Year ${y}`, value: y }))}
             />
-            <Select 
+            <Select
               label="Semester" value={semester} onChange={(e: any) => setSemester(Number(e.target.value))}
-              options={[1,2,3,4,5,6,7,8].map(s => ({label: `Sem ${s}`, value: s}))}
+              options={[1, 2, 3, 4, 5, 6, 7, 8].map(s => ({ label: `Sem ${s}`, value: s }))}
             />
           </div>
 
-          <Input 
+          <Input
             label="Register Number"
             value={regNo}
             onChange={(e: any) => setRegNo(e.target.value.toUpperCase())}
-            placeholder={`e.g. 2105${{1:'25', 2:'24', 3:'23', 4:'22'}[year] || 'XX'}...`}
+            placeholder={`e.g. 2105${{ 1: '25', 2: '24', 3: '23', 4: '22' }[year] || 'XX'}...`}
           />
 
           <Button onClick={handleLogin} className="w-full mt-4" disabled={loading}>
@@ -197,8 +202,8 @@ const StudentPortal: React.FC<Props> = ({ onBack }) => {
       </div>
 
       {loading && <div className="fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center">
-         <Loader />
-         <p className="mt-4 text-indigo-600 font-medium">Analyzing Feedback with AI...</p>
+        <Loader />
+        <p className="mt-4 text-indigo-600 font-medium">Analyzing Feedback with AI...</p>
       </div>}
 
       <div className="space-y-6">
@@ -215,14 +220,14 @@ const StudentPortal: React.FC<Props> = ({ onBack }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Faculty Rating</label>
-                <StarRating 
+                <StarRating
                   value={feedbackData[sub.id]?.faculty_rating || 0}
                   onChange={(v: number) => updateFeedback(sub.id, 'faculty_rating', v)}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Rating</label>
-                <StarRating 
+                <StarRating
                   value={feedbackData[sub.id]?.difficulty_rating || 0}
                   onChange={(v: number) => updateFeedback(sub.id, 'difficulty_rating', v)}
                 />
@@ -230,43 +235,43 @@ const StudentPortal: React.FC<Props> = ({ onBack }) => {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <Input 
+              <Input
                 label="Chapters Completed"
                 type="number"
                 value={feedbackData[sub.id]?.chapters_completed || ''}
                 onChange={(e: any) => updateFeedback(sub.id, 'chapters_completed', e.target.value)}
               />
               {sub.is_lab && (
-                 <Input 
-                 label="Experiments Completed"
-                 type="number"
-                 value={feedbackData[sub.id]?.experiments_completed || ''}
-                 onChange={(e: any) => updateFeedback(sub.id, 'experiments_completed', e.target.value)}
-               />
+                <Input
+                  label="Experiments Completed"
+                  type="number"
+                  value={feedbackData[sub.id]?.experiments_completed || ''}
+                  onChange={(e: any) => updateFeedback(sub.id, 'experiments_completed', e.target.value)}
+                />
               )}
             </div>
 
             <div className="mb-4">
-               <label className="flex items-center space-x-2 mb-2">
-                 <input type="checkbox" 
-                    onChange={(e) => {
-                      if(!e.target.checked) updateFeedback(sub.id, 'beyond_syllabus_topic', undefined);
-                    }}
-                    className="rounded text-indigo-600 focus:ring-indigo-500"
-                 />
-                 <span className="text-sm text-gray-700">Covered Beyond Syllabus Topic?</span>
-               </label>
-               <input 
-                 type="text"
-                 placeholder="If yes, specify topic..."
-                 className="w-full px-3 py-2 border border-gray-300 rounded text-sm disabled:bg-gray-100"
-                 onChange={(e) => updateFeedback(sub.id, 'beyond_syllabus_topic', e.target.value)}
-               />
+              <label className="flex items-center space-x-2 mb-2">
+                <input type="checkbox"
+                  onChange={(e) => {
+                    if (!e.target.checked) updateFeedback(sub.id, 'beyond_syllabus_topic', undefined);
+                  }}
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-gray-700">Covered Beyond Syllabus Topic?</span>
+              </label>
+              <input
+                type="text"
+                placeholder="If yes, specify topic..."
+                className="w-full px-3 py-2 border border-gray-300 rounded text-sm disabled:bg-gray-100"
+                onChange={(e) => updateFeedback(sub.id, 'beyond_syllabus_topic', e.target.value)}
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Detailed Feedback (Required)</label>
-              <textarea 
+              <textarea
                 className="w-full border border-gray-300 rounded-md p-3 text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
                 rows={3}
                 placeholder="What did you like? What can be improved?"
@@ -278,8 +283,8 @@ const StudentPortal: React.FC<Props> = ({ onBack }) => {
         ))}
 
         <div className="flex justify-end gap-4 pt-4 pb-12">
-           <Button variant="secondary" onClick={onBack}>Cancel</Button>
-           <Button onClick={handleSubmitAll} className="px-8">Submit Feedback</Button>
+          <Button variant="secondary" onClick={onBack}>Cancel</Button>
+          <Button onClick={handleSubmitAll} className="px-8">Submit Feedback</Button>
         </div>
       </div>
     </div>
